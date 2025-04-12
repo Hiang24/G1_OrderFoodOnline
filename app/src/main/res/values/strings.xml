@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">G1_OrderFoodOnline</string>
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="email">Email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="confirm_password">Xác nhận mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="dont_have_account">Chưa có tài khoản?</string>
+    <string name="already_have_account">Đã có tài khoản?</string>
+    <string name="home">Trang chủ</string>
+    <string name="menu">Thực đơn</string>
+    <string name="cart">Giỏ hàng</string>
+    <string name="profile">Tài khoản</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="add_to_cart">Thêm vào giỏ</string>
+    <string name="checkout">Thanh toán</string>
+    <string name="order_now">Đặt ngay</string>
+    <string name="total">Tổng cộng</string>
+    <string name="delivery_address">Địa chỉ giao hàng</string>
+    <string name="payment_method">Phương thức thanh toán</string>
+    <string name="cash_on_delivery">Thanh toán khi nhận hàng</string>
+    <string name="order_tracking">Theo dõi đơn hàng</string>
+    <string name="order_confirmed">Đơn hàng đã xác nhận</string>
+    <string name="order_processing">Đang chuẩn bị</string>
+    <string name="order_on_the_way">Đang giao hàng</string>
+    <string name="order_delivered">Đã giao hàng</string>
+    <string name="food">Món ăn</string>
+    <string name="drinks">Đồ uống</string>
+    <string name="popular">Phổ biến</string>
+    <string name="recommended">Đề xuất</string>
+</resources>
+
