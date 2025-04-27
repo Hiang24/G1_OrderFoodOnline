@@ -181,7 +181,8 @@ public class OrderTrackingActivity extends AppCompatActivity {
         try {
             if ("CheckoutActivity".equals(sourceActivity)) {
                 // Nếu từ CheckoutActivity, quay về CartActivity
-                Intent intent = new Intent(this, CartActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("fragment", "cart");
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             } else if ("OrderHistoryActivity".equals(sourceActivity)) {
@@ -199,7 +200,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
             finish();
         } catch (Exception e) {
             LogUtils.error(TAG, "Error navigating back", e);
-            onBackPressed();
+            finish(); // Đảm bảo activity được đóng ngay cả khi có lỗi
         }
     }
 

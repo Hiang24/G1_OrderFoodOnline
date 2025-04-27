@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.g1_orderfoodonline.R;
+import com.example.g1_orderfoodonline.activities.AddressListActivity;
 import com.example.g1_orderfoodonline.activities.LoginActivity;
 import com.example.g1_orderfoodonline.activities.OrderHistoryActivity;
 import com.example.g1_orderfoodonline.utils.LogUtils;
@@ -74,7 +75,9 @@ public class ProfileFragment extends Fragment {
             });
 
             layoutAddress.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Chức năng đang phát triển", Toast.LENGTH_SHORT).show();
+                // Chuyển đến màn hình quản lý địa chỉ
+                Intent intent = new Intent(getActivity(), AddressListActivity.class);
+                startActivity(intent);
             });
 
             layoutPayment.setOnClickListener(v -> {

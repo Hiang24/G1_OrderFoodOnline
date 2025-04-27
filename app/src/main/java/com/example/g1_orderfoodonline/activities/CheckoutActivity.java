@@ -3,6 +3,7 @@ package com.example.g1_orderfoodonline.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -11,13 +12,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.OrderSummaryAdapter;
 import com.example.g1_orderfoodonline.models.CartItem;
+import com.example.g1_orderfoodonline.models.DeliveryAddress;
 import com.example.g1_orderfoodonline.models.Order;
+import com.example.g1_orderfoodonline.utils.AddressManager;
 import com.example.g1_orderfoodonline.utils.CartManager;
 import com.example.g1_orderfoodonline.utils.LogUtils;
 import com.example.g1_orderfoodonline.utils.OrderManager;
@@ -34,8 +38,11 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private static final String TAG = "CheckoutActivity";
     private static final double DELIVERY_FEE = 15000;
+    private static final int REQUEST_SELECT_ADDRESS = 1001;
 
-    private EditText editTextName, editTextPhone, editTextAddress;
+    private CardView cardViewAddress;
+    private TextView textViewName, textViewPhone, textViewAddress;
+    private TextView textViewChangeAddress;
     private TextView textViewSubtotal, textViewDeliveryFee, textViewTotal, textViewTotalCheckout;
     private Button buttonPlaceOrder, buttonCancel;
     private RecyclerView recyclerViewOrderSummary;
@@ -45,6 +52,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private List<CartItem> cartItems;
     private double subtotal, total;
+    private DeliveryAddress selectedAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +65,18 @@ public class CheckoutActivity extends AppCompatActivity {
         setupRecyclerView();
         calculateTotals();
         updateUI();
+        loadDefaultAddress();
         setupPlaceOrderButton();
         setupCancelButton();
     }
 
     private void initViews() {
         try {
-            editTextName = findViewById(R.id.editTextName);
-            editTextPhone = findViewById(R.id.editTextPhone);
-            editTextAddress = findViewById(R.id.editTextAddress);
+            cardViewAddress = findViewById(R.id.cardViewAddress);
+            textViewName = findViewById(R.id.textViewName);
+            textViewPhone = findViewById(R.id.textViewPhone);
+            textViewAddress = findViewById(R.id.textViewAddress);
+            textViewChangeAddress = findViewById(R.id.textViewChangeAddress);
             textViewSubtotal = findViewById(R.id.textViewSubtotal);
             textViewDeliveryFee = findViewById(R.id.textViewDeliveryFee);
             textViewTotal = findViewById(R.id.textViewTotal);
@@ -76,6 +87,23 @@ public class CheckoutActivity extends AppCompatActivity {
             toolbar = findViewById(R.id.toolbar);
             backButton = findViewById(R.id.backButton);
             bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+            textViewChangeAddress.setOnClickListener(v -> {
+                Intent intent = new Intent(CheckoutActivity.this, AddressListActivity.class);
+                intent.putExtra("selection_mode", true);
+                startActivityForResult(intent, REQUEST_SELECT_ADDRESS);
+            });
+
+            cardViewAddress.setOnClickListener(v -> {
+                if (selectedAddress == null) {
+                    Intent intent = new Intent(CheckoutActivity.this, AddAddressActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(CheckoutActivity.this, AddressListActivity.class);
+                    intent.putExtra("selection_mode", true);
+                    startActivityForResult(intent, REQUEST_SELECT_ADDRESS);
+                }
+            });
         } catch (Exception e) {
             LogUtils.error(TAG, "Error initializing views", e);
         }
@@ -181,10 +209,33 @@ public class CheckoutActivity extends AppCompatActivity {
         }
     }
 
+    private void loadDefaultAddress() {
+        try {
+            selectedAddress = AddressManager.getInstance().getDefaultAddress();
+            updateAddressUI();
+        } catch (Exception e) {
+            LogUtils.error(TAG, "Error loading default address", e);
+        }
+    }
+
+    private void updateAddressUI() {
+        if (selectedAddress != null) {
+            textViewName.setText(selectedAddress.getName());
+            textViewPhone.setText(selectedAddress.getPhone());
+            textViewAddress.setText(selectedAddress.getFullAddress());
+            textViewChangeAddress.setVisibility(View.VISIBLE);
+        } else {
+            textViewName.setText("Chưa có địa chỉ giao hàng");
+            textViewPhone.setText("");
+            textViewAddress.setText("Nhấn vào đây để thêm địa chỉ giao hàng");
+            textViewChangeAddress.setVisibility(View.GONE);
+        }
+    }
+
     private void setupPlaceOrderButton() {
         try {
             buttonPlaceOrder.setOnClickListener(v -> {
-                if (validateInputs()) {
+                if (validateOrder()) {
                     placeOrder();
                 }
             });
@@ -203,13 +254,27 @@ public class CheckoutActivity extends AppCompatActivity {
         }
     }
 
+    private boolean validateOrder() {
+        if (selectedAddress == null) {
+            Toast.makeText(this, "Vui lòng chọn địa chỉ giao hàng", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (cartItems.isEmpty()) {
+            Toast.makeText(this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
     private void placeOrder() {
         try {
             // Tạo đơn hàng mới
             String orderId = UUID.randomUUID().toString().substring(0, 8);
-            String customerName = editTextName.getText().toString().trim();
-            String customerPhone = editTextPhone.getText().toString().trim();
-            String customerAddress = editTextAddress.getText().toString().trim();
+            String customerName = selectedAddress.getName();
+            String customerPhone = selectedAddress.getPhone();
+            String customerAddress = selectedAddress.getFullAddress();
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             String orderDate = sdf.format(new Date());
@@ -253,31 +318,18 @@ public class CheckoutActivity extends AppCompatActivity {
         }
     }
 
-    private boolean validateInputs() {
-        try {
-            String name = editTextName.getText().toString().trim();
-            String phone = editTextPhone.getText().toString().trim();
-            String address = editTextAddress.getText().toString().trim();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-            if (name.isEmpty()) {
-                editTextName.setError("Vui lòng nhập họ tên");
-                return false;
+        if (resultCode == RESULT_OK && requestCode == REQUEST_SELECT_ADDRESS) {
+            if (data != null && data.hasExtra("selected_address_id")) {
+                int addressId = data.getIntExtra("selected_address_id", -1);
+                if (addressId != -1) {
+                    selectedAddress = AddressManager.getInstance().getAddressById(addressId);
+                    updateAddressUI();
+                }
             }
-
-            if (phone.isEmpty()) {
-                editTextPhone.setError("Vui lòng nhập số điện thoại");
-                return false;
-            }
-
-            if (address.isEmpty()) {
-                editTextAddress.setError("Vui lòng nhập địa chỉ giao hàng");
-                return false;
-            }
-
-            return true;
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error validating inputs", e);
-            return false;
         }
     }
 
