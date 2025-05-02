@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.g1_orderfoodonline.R;
-import com.example.g1_orderfoodonline.activities.AddressListActivity;
 import com.example.g1_orderfoodonline.activities.LoginActivity;
 import com.example.g1_orderfoodonline.activities.OrderHistoryActivity;
 import com.example.g1_orderfoodonline.utils.LogUtils;
@@ -75,9 +74,15 @@ public class ProfileFragment extends Fragment {
             });
 
             layoutAddress.setOnClickListener(v -> {
-                // Chuyển đến màn hình quản lý địa chỉ
-                Intent intent = new Intent(getActivity(), AddressListActivity.class);
-                startActivity(intent);
+                // Chuyển đến fragment quản lý địa chỉ
+                AddressListFragment addressListFragment = new AddressListFragment();
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, addressListFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
             });
 
             layoutPayment.setOnClickListener(v -> {

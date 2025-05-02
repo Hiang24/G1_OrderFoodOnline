@@ -28,7 +28,6 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
     private RecyclerView recyclerViewOrders;
     private TextView textViewNoOrders;
     private Toolbar toolbar;
-    private ImageView backButton;
     private BottomNavigationView bottomNavigationView;
 
     private OrderHistoryAdapter adapter;
@@ -54,7 +53,6 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
             recyclerViewOrders = findViewById(R.id.recyclerViewOrders);
             textViewNoOrders = findViewById(R.id.textViewNoOrders);
             toolbar = findViewById(R.id.toolbar);
-            backButton = findViewById(R.id.backButton);
             bottomNavigationView = findViewById(R.id.bottom_navigation);
         } catch (Exception e) {
             LogUtils.error(TAG, "Error initializing views", e);
@@ -69,12 +67,6 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
 
-            // Thiết lập nút quay lại
-            if (backButton != null) {
-                backButton.setOnClickListener(v -> {
-                    navigateToProfileFragment();
-                });
-            }
         } catch (Exception e) {
             LogUtils.error(TAG, "Error setting up toolbar", e);
         }

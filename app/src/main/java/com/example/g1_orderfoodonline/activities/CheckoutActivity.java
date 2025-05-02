@@ -5,19 +5,20 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.OrderSummaryAdapter;
+import com.example.g1_orderfoodonline.fragments.AddressListFragment;
 import com.example.g1_orderfoodonline.models.CartItem;
 import com.example.g1_orderfoodonline.models.DeliveryAddress;
 import com.example.g1_orderfoodonline.models.Order;
@@ -34,11 +35,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.annotation.Nullable;
+
 public class CheckoutActivity extends AppCompatActivity {
 
     private static final String TAG = "CheckoutActivity";
     private static final double DELIVERY_FEE = 15000;
-    private static final int REQUEST_SELECT_ADDRESS = 1001;
+    private static final int REQUEST_CODE_SELECT_ADDRESS = 1001;
 
     private CardView cardViewAddress;
     private TextView textViewName, textViewPhone, textViewAddress;
@@ -47,7 +50,6 @@ public class CheckoutActivity extends AppCompatActivity {
     private Button buttonPlaceOrder, buttonCancel;
     private RecyclerView recyclerViewOrderSummary;
     private Toolbar toolbar;
-    private ImageView backButton;
     private BottomNavigationView bottomNavigationView;
 
     private List<CartItem> cartItems;
@@ -85,28 +87,24 @@ public class CheckoutActivity extends AppCompatActivity {
             buttonCancel = findViewById(R.id.buttonCancel);
             recyclerViewOrderSummary = findViewById(R.id.recyclerViewOrderSummary);
             toolbar = findViewById(R.id.toolbar);
-            backButton = findViewById(R.id.backButton);
             bottomNavigationView = findViewById(R.id.bottom_navigation);
 
             textViewChangeAddress.setOnClickListener(v -> {
-                Intent intent = new Intent(CheckoutActivity.this, AddressListActivity.class);
-                intent.putExtra("selection_mode", true);
-                startActivityForResult(intent, REQUEST_SELECT_ADDRESS);
+                navigateToAddressList();
             });
 
             cardViewAddress.setOnClickListener(v -> {
-                if (selectedAddress == null) {
-                    Intent intent = new Intent(CheckoutActivity.this, AddAddressActivity.class);
-                    startActivity(intent);
-                } else {
-                    Intent intent = new Intent(CheckoutActivity.this, AddressListActivity.class);
-                    intent.putExtra("selection_mode", true);
-                    startActivityForResult(intent, REQUEST_SELECT_ADDRESS);
-                }
+                navigateToAddressList();
             });
         } catch (Exception e) {
             LogUtils.error(TAG, "Error initializing views", e);
         }
+    }
+
+    private void navigateToAddressList() {
+        Intent intent = new Intent(this, AddressListActivity.class);
+        intent.putExtra("selection_mode", true);
+        startActivityForResult(intent, REQUEST_CODE_SELECT_ADDRESS);
     }
 
     private void setupToolbar() {
@@ -115,13 +113,6 @@ public class CheckoutActivity extends AppCompatActivity {
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
-            }
-
-            // Thiết lập nút quay lại
-            if (backButton != null) {
-                backButton.setOnClickListener(v -> {
-                    navigateToCartActivity();
-                });
             }
         } catch (Exception e) {
             LogUtils.error(TAG, "Error setting up toolbar", e);
@@ -166,13 +157,13 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private void navigateToCartActivity() {
         try {
-            Intent intent = new Intent(this, CartActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("fragment", "cart");
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         } catch (Exception e) {
-            LogUtils.error(TAG, "Error navigating to cart activity", e);
-            onBackPressed();
+            LogUtils.error(TAG, "Error navigating to cart", e);
         }
     }
 
@@ -319,21 +310,6 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && requestCode == REQUEST_SELECT_ADDRESS) {
-            if (data != null && data.hasExtra("selected_address_id")) {
-                int addressId = data.getIntExtra("selected_address_id", -1);
-                if (addressId != -1) {
-                    selectedAddress = AddressManager.getInstance().getAddressById(addressId);
-                    updateAddressUI();
-                }
-            }
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             navigateToCartActivity();
@@ -345,5 +321,17 @@ public class CheckoutActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         navigateToCartActivity();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_SELECT_ADDRESS && resultCode == RESULT_OK && data != null) {
+            int selectedAddressId = data.getIntExtra("selected_address_id", -1);
+            if (selectedAddressId != -1) {
+                selectedAddress = AddressManager.getInstance().getAddressById(selectedAddressId);
+                updateAddressUI();
+            }
+        }
     }
 }

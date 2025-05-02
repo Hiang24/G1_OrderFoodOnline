@@ -1,13 +1,13 @@
 package com.example.g1_orderfoodonline.activities;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.AddressAdapter;
+import com.example.g1_orderfoodonline.fragments.AddAddressFragment;
 import com.example.g1_orderfoodonline.models.DeliveryAddress;
 import com.example.g1_orderfoodonline.utils.AddressManager;
 import com.example.g1_orderfoodonline.utils.LogUtils;
@@ -24,26 +25,23 @@ import java.util.List;
 public class AddressListActivity extends AppCompatActivity implements AddressAdapter.AddressListener {
 
     private static final String TAG = "AddressListActivity";
-    private static final int REQUEST_ADD_ADDRESS = 1001;
-    private static final int REQUEST_EDIT_ADDRESS = 1002;
+    private static final String ARG_SELECTION_MODE = "selection_mode";
 
     private RecyclerView recyclerViewAddresses;
     private TextView textViewNoAddresses;
     private Button buttonAddAddress;
     private Toolbar toolbar;
-    private ImageView backButton;
 
     private AddressAdapter adapter;
     private List<DeliveryAddress> addresses;
     private boolean isSelectionMode;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_address_list);
 
-        // Kiểm tra xem có đang ở chế độ chọn địa chỉ không
-        isSelectionMode = getIntent().getBooleanExtra("selection_mode", false);
+        isSelectionMode = getIntent().getBooleanExtra(ARG_SELECTION_MODE, false);
 
         initViews();
         setupToolbar();
@@ -56,11 +54,9 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
             textViewNoAddresses = findViewById(R.id.textViewNoAddresses);
             buttonAddAddress = findViewById(R.id.buttonAddAddress);
             toolbar = findViewById(R.id.toolbar);
-            backButton = findViewById(R.id.backButton);
 
             buttonAddAddress.setOnClickListener(v -> {
-                Intent intent = new Intent(AddressListActivity.this, AddAddressActivity.class);
-                startActivityForResult(intent, REQUEST_ADD_ADDRESS);
+                showAddAddressFragment();
             });
         } catch (Exception e) {
             LogUtils.error(TAG, "Error initializing views", e);
@@ -71,13 +67,9 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
         try {
             setSupportActionBar(toolbar);
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle(isSelectionMode ? "Chọn địa chỉ giao hàng" : "Địa chỉ giao hàng");
             }
-
-            backButton.setOnClickListener(v -> {
-                onBackPressed();
-            });
         } catch (Exception e) {
             LogUtils.error(TAG, "Error setting up toolbar", e);
         }
@@ -103,6 +95,17 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
         }
     }
 
+    private void showAddAddressFragment() {
+        AddAddressFragment fragment = AddAddressFragment.newInstance(-1);
+        fragment.setTargetFragment(null, 0);
+        
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
     @Override
     public void onAddressSelected(DeliveryAddress address) {
         if (isSelectionMode) {
@@ -115,22 +118,20 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
 
     @Override
     public void onEditAddress(DeliveryAddress address) {
-        Intent intent = new Intent(this, AddAddressActivity.class);
-        intent.putExtra("address_id", address.getId());
-        startActivityForResult(intent, REQUEST_EDIT_ADDRESS);
+        AddAddressFragment fragment = AddAddressFragment.newInstance(address.getId());
+        fragment.setTargetFragment(null, 0);
+        
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
     public void onDeleteAddress(DeliveryAddress address) {
-        new AlertDialog.Builder(this)
-                .setTitle("Xóa địa chỉ")
-                .setMessage("Bạn có chắc chắn muốn xóa địa chỉ này?")
-                .setPositiveButton("Xóa", (dialog, which) -> {
-                    AddressManager.getInstance().deleteAddress(address.getId());
-                    loadAddresses();
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
+        AddressManager.getInstance().deleteAddress(address.getId());
+        loadAddresses();
     }
 
     @Override
@@ -140,13 +141,11 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_ADD_ADDRESS || requestCode == REQUEST_EDIT_ADDRESS) {
-                loadAddresses();
-            }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
-}
+} 

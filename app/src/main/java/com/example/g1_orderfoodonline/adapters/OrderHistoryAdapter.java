@@ -22,7 +22,10 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     private Context context;
     private List<Order> orders;
     private OrderClickListener listener;
-    
+
+    public OrderHistoryAdapter(Context context, List<Order> orders) {
+    }
+
     public interface OrderClickListener {
         void onOrderClick(Order order);
     }

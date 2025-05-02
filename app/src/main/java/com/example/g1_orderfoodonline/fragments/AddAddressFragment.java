@@ -1,95 +1,91 @@
-package com.example.g1_orderfoodonline.activities;
+package com.example.g1_orderfoodonline.fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.models.DeliveryAddress;
 import com.example.g1_orderfoodonline.utils.AddressManager;
 import com.example.g1_orderfoodonline.utils.LogUtils;
 
-public class AddAddressActivity extends AppCompatActivity {
+public class AddAddressFragment extends Fragment {
 
-    private static final String TAG = "AddAddressActivity";
+    private static final String TAG = "AddAddressFragment";
+    private static final String ARG_ADDRESS_ID = "address_id";
     
     private EditText editTextName, editTextPhone, editTextAddress, editTextDistrict, editTextCity;
     private CheckBox checkBoxDefault;
-    private Button buttonSave;
-    private Toolbar toolbar;
-    private ImageView backButton;
+    private Button buttonSave, buttonCancel;
     private TextView textViewTitle;
     
     private DeliveryAddress existingAddress;
     private int addressId = -1;
     private boolean isEditMode = false;
 
+    public static AddAddressFragment newInstance(int addressId) {
+        AddAddressFragment fragment = new AddAddressFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_ADDRESS_ID, addressId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_address);
-        
-        // Kiểm tra xem có đang ở chế độ sửa địa chỉ không
-        if (getIntent().hasExtra("address_id")) {
-            addressId = getIntent().getIntExtra("address_id", -1);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_add_address, container, false);
+
+        if (getArguments() != null) {
+            addressId = getArguments().getInt(ARG_ADDRESS_ID, -1);
             isEditMode = addressId != -1;
         }
-        
-        initViews();
-        setupToolbar();
+
+        initViews(view);
         
         if (isEditMode) {
             loadAddressData();
         }
+
+        return view;
     }
-    
-    private void initViews() {
+
+    private void initViews(View view) {
         try {
-            editTextName = findViewById(R.id.editTextName);
-            editTextPhone = findViewById(R.id.editTextPhone);
-            editTextAddress = findViewById(R.id.editTextAddress);
-            editTextDistrict = findViewById(R.id.editTextDistrict);
-            editTextCity = findViewById(R.id.editTextCity);
-            checkBoxDefault = findViewById(R.id.checkBoxDefault);
-            buttonSave = findViewById(R.id.buttonSave);
-            toolbar = findViewById(R.id.toolbar);
-            backButton = findViewById(R.id.backButton);
-            textViewTitle = findViewById(R.id.textViewTitle);
+            editTextName = view.findViewById(R.id.editTextName);
+            editTextPhone = view.findViewById(R.id.editTextPhone);
+            editTextAddress = view.findViewById(R.id.editTextAddress);
+            editTextDistrict = view.findViewById(R.id.editTextDistrict);
+            editTextCity = view.findViewById(R.id.editTextCity);
+            checkBoxDefault = view.findViewById(R.id.checkBoxDefault);
+            buttonSave = view.findViewById(R.id.buttonSave);
+            buttonCancel = view.findViewById(R.id.buttonCancel);
+            textViewTitle = view.findViewById(R.id.textViewTitle);
+
+            textViewTitle.setText(isEditMode ? "Sửa địa chỉ" : "Thêm địa chỉ mới");
             
             buttonSave.setOnClickListener(v -> {
                 saveAddress();
             });
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error initializing views", e);
-        }
-    }
-    
-    private void setupToolbar() {
-        try {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
-            }
-            
-            if (isEditMode) {
-                textViewTitle.setText("Sửa địa chỉ");
-            } else {
-                textViewTitle.setText("Thêm địa chỉ mới");
-            }
-            
-            backButton.setOnClickListener(v -> {
-                finish();
+
+            buttonCancel.setOnClickListener(v -> {
+                // Quay về fragment trước đó
+                if (getParentFragmentManager() != null) {
+                    getParentFragmentManager().popBackStack();
+                }
             });
         } catch (Exception e) {
-            LogUtils.error(TAG, "Error setting up toolbar", e);
+            LogUtils.error(TAG, "Error initializing views", e);
         }
     }
     
@@ -104,13 +100,13 @@ public class AddAddressActivity extends AppCompatActivity {
                 editTextCity.setText(existingAddress.getCity());
                 checkBoxDefault.setChecked(existingAddress.isDefault());
             } else {
-                Toast.makeText(this, "Không tìm thấy địa chỉ", Toast.LENGTH_SHORT).show();
-                finish();
+                Toast.makeText(getContext(), "Không tìm thấy địa chỉ", Toast.LENGTH_SHORT).show();
+                getParentFragmentManager().popBackStack();
             }
         } catch (Exception e) {
             LogUtils.error(TAG, "Error loading address data", e);
-            Toast.makeText(this, "Lỗi khi tải thông tin địa chỉ", Toast.LENGTH_SHORT).show();
-            finish();
+            Toast.makeText(getContext(), "Lỗi khi tải thông tin địa chỉ", Toast.LENGTH_SHORT).show();
+            getParentFragmentManager().popBackStack();
         }
     }
     
@@ -124,7 +120,7 @@ public class AddAddressActivity extends AppCompatActivity {
             boolean isDefault = checkBoxDefault.isChecked();
             
             if (name.isEmpty() || phone.isEmpty() || address.isEmpty() || district.isEmpty() || city.isEmpty()) {
-                Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
             
@@ -138,7 +134,7 @@ public class AddAddressActivity extends AppCompatActivity {
                 existingAddress.setDefault(isDefault);
                 
                 AddressManager.getInstance().updateAddress(existingAddress);
-                Toast.makeText(this, "Đã cập nhật địa chỉ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Đã cập nhật địa chỉ", Toast.LENGTH_SHORT).show();
             } else {
                 // Thêm địa chỉ mới
                 DeliveryAddress newAddress = new DeliveryAddress(
@@ -152,14 +148,14 @@ public class AddAddressActivity extends AppCompatActivity {
                 );
                 
                 AddressManager.getInstance().addAddress(newAddress);
-                Toast.makeText(this, "Đã thêm địa chỉ mới", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Đã thêm địa chỉ mới", Toast.LENGTH_SHORT).show();
             }
             
-            setResult(RESULT_OK);
-            finish();
+            // Quay về fragment trước đó
+            getParentFragmentManager().popBackStack();
         } catch (Exception e) {
             LogUtils.error(TAG, "Error saving address", e);
-            Toast.makeText(this, "Lỗi khi lưu địa chỉ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Lỗi khi lưu địa chỉ", Toast.LENGTH_SHORT).show();
         }
     }
-}
+} 

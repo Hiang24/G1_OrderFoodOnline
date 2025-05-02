@@ -31,7 +31,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
     private TextView textViewSubtotal, textViewDeliveryFee, textViewTotal;
     private TextView textViewConfirmedTime, textViewProcessingTime, textViewOnTheWayTime, textViewDeliveredTime;
     private ImageView imageViewConfirmed, imageViewProcessing, imageViewOnTheWay, imageViewDelivered;
-    private ImageView backButton;
+
     private BottomNavigationView bottomNavigationView;
 
     private Order order;
@@ -92,7 +92,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
         try {
             recyclerViewOrderItems = findViewById(R.id.recyclerViewOrderItems);
             toolbar = findViewById(R.id.toolbar);
-            backButton = findViewById(R.id.backButton);
+
             bottomNavigationView = findViewById(R.id.bottom_navigation);
 
             textViewOrderId = findViewById(R.id.textViewOrderId);
@@ -129,12 +129,6 @@ public class OrderTrackingActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
 
-            // Thiết lập nút quay lại
-            if (backButton != null) {
-                backButton.setOnClickListener(v -> {
-                    navigateBack();
-                });
-            }
         } catch (Exception e) {
             LogUtils.error(TAG, "Error setting up toolbar", e);
         }
@@ -345,6 +339,14 @@ public class OrderTrackingActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        navigateBack();
+        try {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("fragment", "cart");
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        } catch (Exception e) {
+            LogUtils.error(TAG, "Error handling back press", e);
+            super.onBackPressed();
+        }
     }
 }
