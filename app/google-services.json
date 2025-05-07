@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "798936044150",
+    "project_id": "g1-orderfoodonline",
+    "storage_bucket": "g1-orderfoodonline.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798936044150:android:cd8a6511ac6580b3a9c557",
+        "android_client_info": {
+          "package_name": "com.example.g1_orderfoodonline"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7fZ2abG3C9JTa-JCPzcmaiGilAaP-3Do"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -179,7 +179,6 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             imageViewFood = itemView.findViewById(R.id.imageViewFood);
             textViewFoodName = itemView.findViewById(R.id.textViewFoodName);
             textViewFoodPrice = itemView.findViewById(R.id.textViewFoodPrice);
-            ratingBar = itemView.findViewById(R.id.ratingBar);
         }
     }
 
@@ -195,8 +194,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             imageViewFood = itemView.findViewById(R.id.imageViewFood);
             textViewFoodName = itemView.findViewById(R.id.textViewFoodName);
             textViewFoodPrice = itemView.findViewById(R.id.textViewFoodPrice);
-            ratingBar = itemView.findViewById(R.id.ratingBar);
-            textViewRating = itemView.findViewById(R.id.textViewRating);
+
         }
     }
 
@@ -213,7 +211,6 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             textViewFoodName = itemView.findViewById(R.id.textViewFoodName);
             textViewFoodPrice = itemView.findViewById(R.id.textViewFoodPrice);
             textViewDescription = itemView.findViewById(R.id.textViewDescription);
-            ratingBar = itemView.findViewById(R.id.ratingBar);
         }
     }
 }

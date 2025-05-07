@@ -95,8 +95,6 @@ public class FoodDetailActivity extends AppCompatActivity {
             textViewPrice = findViewById(R.id.textViewPrice);
             textViewDescription = findViewById(R.id.textViewDescription);
             textViewQuantity = findViewById(R.id.textViewQuantity);
-            textViewRating = findViewById(R.id.textViewRating);
-            ratingBar = findViewById(R.id.ratingBar);
             buttonMinus = findViewById(R.id.buttonMinus);
             buttonPlus = findViewById(R.id.buttonPlus);
             buttonAddToCart = findViewById(R.id.buttonAddToCart);
