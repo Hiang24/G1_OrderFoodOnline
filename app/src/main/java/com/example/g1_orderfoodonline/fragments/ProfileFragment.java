@@ -18,6 +18,9 @@ import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.activities.LoginActivity;
 import com.example.g1_orderfoodonline.activities.OrderHistoryActivity;
 import com.example.g1_orderfoodonline.utils.LogUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 public class ProfileFragment extends Fragment {
 
@@ -26,14 +29,19 @@ public class ProfileFragment extends Fragment {
     private TextView textViewName, textViewEmail;
     private Button buttonEditProfile, buttonLogout;
     private LinearLayout layoutMyOrders, layoutAddress, layoutPayment, layoutNotification;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
         initViews(view);
         setupClickListeners();
+        loadUserData();
 
         return view;
     }
@@ -53,6 +61,32 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    private void loadUserData() {
+        if (mAuth.getCurrentUser() != null) {
+            String userId = mAuth.getCurrentUser().getUid();
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String fullName = documentSnapshot.getString("fullName");
+                            String email = documentSnapshot.getString("email");
+                            String phone = documentSnapshot.getString("phone");
+
+                            textViewName.setText(fullName);
+                            // Hiển thị email nếu là email thật, ngược lại hiển thị số điện thoại
+                            if (email.contains("@orderfood.com")) {
+                                textViewEmail.setText(phone);
+                            } else {
+                                textViewEmail.setText(email);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        LogUtils.error(TAG, "Error loading user data", e);
+                    });
+        }
+    }
+
     private void setupClickListeners() {
         try {
             buttonEditProfile.setOnClickListener(v -> {
@@ -60,7 +94,7 @@ public class ProfileFragment extends Fragment {
             });
 
             buttonLogout.setOnClickListener(v -> {
-                // Perform logout
+                mAuth.signOut();
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -68,13 +102,11 @@ public class ProfileFragment extends Fragment {
             });
 
             layoutMyOrders.setOnClickListener(v -> {
-                // Chuyển đến màn hình lịch sử đơn hàng
                 Intent intent = new Intent(getActivity(), OrderHistoryActivity.class);
                 startActivity(intent);
             });
 
             layoutAddress.setOnClickListener(v -> {
-                // Chuyển đến fragment quản lý địa chỉ
                 AddressListFragment addressListFragment = new AddressListFragment();
                 if (getActivity() != null) {
                     getActivity().getSupportFragmentManager()
