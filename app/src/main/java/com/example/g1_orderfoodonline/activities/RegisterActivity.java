@@ -10,18 +10,21 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.g1_orderfoodonline.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText editTextEmail, editTextPassword, editTextConfirmPassword;
     private Button buttonRegister;
     private TextView textViewLogin;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        mAuth = FirebaseAuth.getInstance();
         initViews();
         setupClickListeners();
     }
@@ -37,11 +40,25 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupClickListeners() {
         buttonRegister.setOnClickListener(v -> {
             if (validateInputs()) {
-                // Simulate registration
-                Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
+                String input = editTextEmail.getText().toString().trim();
+                String password = editTextPassword.getText().toString().trim();
+                String email;
+                if (isValidEmail(input)) {
+                    email = input;
+                } else {
+                    email = input + "@orderfood.com";
+                }
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(this, "Đăng ký thất bại: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
 
@@ -76,6 +93,10 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 }
 

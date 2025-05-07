@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.g1_orderfoodonline"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -51,5 +51,6 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
 }
 
