@@ -57,7 +57,7 @@ public class FoodDetailActivity extends AppCompatActivity {
                 int imageResource = getIntent().getIntExtra("food_image", 0);
                 String category = getIntent().getStringExtra("food_category");
 
-                food = new Food(id, name, description, price, rating, imageResource, category);
+                food = new Food(id, name, description, price, imageResource, category);
 
                 LogUtils.debug(TAG, "Food object created: " + (food != null ? food.getName() : "null"));
             } else {
@@ -171,8 +171,7 @@ public class FoodDetailActivity extends AppCompatActivity {
             textViewFoodName.setText(food.getName());
             textViewPrice.setText(String.format("%,.0fđ", food.getPrice()));
             textViewDescription.setText(food.getDescription());
-            textViewRating.setText(String.valueOf(food.getRating()));
-            ratingBar.setRating(food.getRating());
+
 
             // Sử dụng imageResource trực tiếp
             imageViewFood.setImageResource(food.getImageResource());

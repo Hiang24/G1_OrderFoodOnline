@@ -10,27 +10,24 @@ public class Food implements Serializable, Parcelable {
     private String name;
     private String description;
     private double price;
-    private float rating;
     private int imageResource; // Thay đổi từ String sang int
     private String category; // "food" or "drink"
 
-    public Food(int id, String name, String description, double price, float rating, int imageResource, String category) {
+    public Food(int id, String name, String description, double price, int imageResource, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.rating = rating;
         this.imageResource = imageResource;
         this.category = category;
     }
 
     // Constructor thứ hai với thứ tự tham số khác
-    public Food(int id, String name, String description, double price, float rating, String category, int imageResource) {
+    public Food(int id, String name, String description, double price, String category, int imageResource) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.rating = rating;
         this.category = category;
         this.imageResource = imageResource;
     }
@@ -41,7 +38,6 @@ public class Food implements Serializable, Parcelable {
         name = in.readString();
         description = in.readString();
         price = in.readDouble();
-        rating = in.readFloat();
         imageResource = in.readInt();
         category = in.readString();
     }
@@ -69,7 +65,6 @@ public class Food implements Serializable, Parcelable {
         dest.writeString(name);
         dest.writeString(description);
         dest.writeDouble(price);
-        dest.writeFloat(rating);
         dest.writeInt(imageResource);
         dest.writeString(category);
     }
@@ -104,14 +99,6 @@ public class Food implements Serializable, Parcelable {
 
     public void setPrice(double price) {
         this.price = price;
-    }
-
-    public float getRating() {
-        return rating;
-    }
-
-    public void setRating(float rating) {
-        this.rating = rating;
     }
 
     public int getImageResource() {

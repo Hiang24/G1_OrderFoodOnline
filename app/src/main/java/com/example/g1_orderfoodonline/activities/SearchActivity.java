@@ -154,24 +154,24 @@ public class SearchActivity extends AppCompatActivity implements FoodAdapter.OnF
         List<Food> foodList = new ArrayList<>();
 
         // Sử dụng R.drawable trực tiếp
-        foodList.add(new Food(1, "Mỳ Cay Thập Cẩm", "Mỳ cay thập cẩm với nhiều loại hải sản tươi ngon, cay nồng đậm đà hương vị Hàn Quốc.", 75000, 4.5f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(2, "Cơm Trộn Hàn Quốc", "Cơm trộn Hàn Quốc với rau củ tươi ngon, thịt bò xào và trứng ốp la.", 65000, 4.3f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(3, "Trà Đào Cam Sả", "Trà đào thơm ngon với vị cam sả thanh mát.", 35000, 4.7f, R.drawable.mi_kim_chi_hai_san, "drink"));
-        foodList.add(new Food(4, "Gà Rán Sốt Cay", "Gà rán giòn rụm với sốt cay đặc biệt.", 85000, 4.6f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(5, "Bánh Mì Thịt Nướng", "Bánh mì giòn với thịt nướng thơm ngon và rau sống.", 30000, 4.4f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(6, "Cà Phê Sữa Đá", "Cà phê đậm đà hòa quyện với sữa đặc.", 25000, 4.8f, R.drawable.mi_kim_chi_hai_san, "drink"));
-        foodList.add(new Food(7, "Bún Bò Huế", "Bún bò Huế cay nồng với nhiều loại gia vị đặc trưng.", 55000, 4.5f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(8, "Sinh Tố Xoài", "Sinh tố xoài ngọt mát với vị chua nhẹ.", 30000, 4.6f, R.drawable.mi_kim_chi_hai_san, "drink"));
-        foodList.add(new Food(9, "Phở Bò", "Phở bò thơm ngon với nước dùng đậm đà và thịt bò mềm.", 60000, 4.7f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(10, "Nước Ép Cam", "Nước ép cam tươi nguyên chất, giàu vitamin C.", 25000, 4.5f, R.drawable.mi_kim_chi_hai_san, "drink"));
+        foodList.add(new Food(1, "Mỳ Cay Thập Cẩm", "Mỳ cay thập cẩm với nhiều loại hải sản tươi ngon, cay nồng đậm đà hương vị Hàn Quốc.", 75000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(2, "Cơm Trộn Hàn Quốc", "Cơm trộn Hàn Quốc với rau củ tươi ngon, thịt bò xào và trứng ốp la.", 65000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(3, "Trà Đào Cam Sả", "Trà đào thơm ngon với vị cam sả thanh mát.", 35000, R.drawable.mi_kim_chi_hai_san, "drink"));
+        foodList.add(new Food(4, "Gà Rán Sốt Cay", "Gà rán giòn rụm với sốt cay đặc biệt.", 85000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(5, "Bánh Mì Thịt Nướng", "Bánh mì giòn với thịt nướng thơm ngon và rau sống.", 30000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(6, "Cà Phê Sữa Đá", "Cà phê đậm đà hòa quyện với sữa đặc.", 25000, R.drawable.mi_kim_chi_hai_san, "drink"));
+        foodList.add(new Food(7, "Bún Bò Huế", "Bún bò Huế cay nồng với nhiều loại gia vị đặc trưng.", 55000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(8, "Sinh Tố Xoài", "Sinh tố xoài ngọt mát với vị chua nhẹ.", 30000, R.drawable.mi_kim_chi_hai_san, "drink"));
+        foodList.add(new Food(9, "Phở Bò", "Phở bò thơm ngon với nước dùng đậm đà và thịt bò mềm.", 60000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(10, "Nước Ép Cam", "Nước ép cam tươi nguyên chất, giàu vitamin C.", 25000, R.drawable.mi_kim_chi_hai_san, "drink"));
 
         // Thêm món ăn mới ở đây
-        foodList.add(new Food(11, "Bún Chả Hà Nội", "Bún chả Hà Nội với thịt nướng thơm lừng, nước mắm chua ngọt đặc trưng.", 50000, 4.8f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(12, "Cơm Tấm Sườn Bì", "Cơm tấm với sườn nướng, bì heo và trứng ốp la, kèm nước mắm đặc biệt.", 45000, 4.6f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(13, "Bánh Xèo", "Bánh xèo giòn rụm với nhân tôm, thịt và giá đỗ, ăn kèm rau sống.", 40000, 4.5f, R.drawable.mi_kim_chi_hai_san, "food"));
-        foodList.add(new Food(14, "Trà Sữa Trân Châu", "Trà sữa thơm ngon với trân châu đen dẻo.", 30000, 4.7f, R.drawable.mi_kim_chi_hai_san, "drink"));
-        foodList.add(new Food(15, "Nước Ép Dưa Hấu", "Nước ép dưa hấu tươi mát, giải nhiệt mùa hè.", 28000, 4.4f, R.drawable.mi_kim_chi_hai_san, "drink"));
-        foodList.add(new Food(16, "Sữa Chua Đá", "Sữa chua đá thơm ngon với topping trái cây tươi.", 32000, 4.6f, R.drawable.mi_kim_chi_hai_san, "drink"));
+        foodList.add(new Food(11, "Bún Chả Hà Nội", "Bún chả Hà Nội với thịt nướng thơm lừng, nước mắm chua ngọt đặc trưng.", 50000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(12, "Cơm Tấm Sườn Bì", "Cơm tấm với sườn nướng, bì heo và trứng ốp la, kèm nước mắm đặc biệt.", 45000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(13, "Bánh Xèo", "Bánh xèo giòn rụm với nhân tôm, thịt và giá đỗ, ăn kèm rau sống.", 40000, R.drawable.mi_kim_chi_hai_san, "food"));
+        foodList.add(new Food(14, "Trà Sữa Trân Châu", "Trà sữa thơm ngon với trân châu đen dẻo.", 30000, R.drawable.mi_kim_chi_hai_san, "drink"));
+        foodList.add(new Food(15, "Nước Ép Dưa Hấu", "Nước ép dưa hấu tươi mát, giải nhiệt mùa hè.", 28000, R.drawable.mi_kim_chi_hai_san, "drink"));
+        foodList.add(new Food(16, "Sữa Chua Đá", "Sữa chua đá thơm ngon với topping trái cây tươi.", 32000, R.drawable.mi_kim_chi_hai_san, "drink"));
 
         return foodList;
     }
@@ -189,7 +189,6 @@ public class SearchActivity extends AppCompatActivity implements FoodAdapter.OnF
                 intent.putExtra("food_name", food.getName());
                 intent.putExtra("food_description", food.getDescription());
                 intent.putExtra("food_price", food.getPrice());
-                intent.putExtra("food_rating", food.getRating());
                 intent.putExtra("food_image", food.getImageResource());
                 intent.putExtra("food_category", food.getCategory());
 

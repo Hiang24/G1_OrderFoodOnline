@@ -98,7 +98,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         try {
             holder.textViewFoodName.setText(food.getName());
             holder.textViewFoodPrice.setText(String.format("%,.0fđ", food.getPrice()));
-            holder.ratingBar.setRating(food.getRating());
+
 
             // Sử dụng imageResource trực tiếp
             holder.imageViewFood.setImageResource(food.getImageResource());
@@ -121,8 +121,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         try {
             holder.textViewFoodName.setText(food.getName());
             holder.textViewFoodPrice.setText(String.format("%,.0fđ", food.getPrice()));
-            holder.ratingBar.setRating(food.getRating());
-            holder.textViewRating.setText(String.valueOf(food.getRating()));
+
 
             // Sử dụng imageResource trực tiếp
             holder.imageViewFood.setImageResource(food.getImageResource());
@@ -146,7 +145,6 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.textViewFoodName.setText(food.getName());
             holder.textViewFoodPrice.setText(String.format("%,.0fđ", food.getPrice()));
             holder.textViewDescription.setText(food.getDescription());
-            holder.ratingBar.setRating(food.getRating());
 
             // Sử dụng imageResource trực tiếp
             holder.imageViewFood.setImageResource(food.getImageResource());
