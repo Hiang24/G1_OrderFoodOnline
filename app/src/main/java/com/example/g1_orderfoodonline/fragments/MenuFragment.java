@@ -144,9 +144,9 @@ public class MenuFragment extends Fragment implements FoodAdapter.OnFoodClickLis
             foodList.add(new Food(29, "Soda Dừa Dứa Đác Thơm", "Dứa nước soda và hạt cọ kẹo,", 35000, R.drawable.soda_dua_dua_dac_thom, "drink"));
             foodList.add(new Food(30, "Soda Thơm Lừng", "Dưa dứa soda.", 35000, R.drawable.soda_thom_lung, "drink"));
             foodList.add(new Food(32, "Trà Dâu Hoa Hồng", "Trà đen Hibiscus.", 35000, R.drawable.nuoc_gao_han_quoc, "drink"));
-            foodList.add(new Food(33, "Trà Đào Sasin", "Trà đào.", 35000, R.drawable.nuoc_gao_hoa_anh_dao, "drink"));
+            foodList.add(new Food(33, "Trà Đào Sasin", "Trà đào.", 35000, R.drawable.tra_dao_sasin, "drink"));
             foodList.add(new Food(34, "Trà Sữa Trân Châu Sasin", "Trà sữa.", 35000, R.drawable.soda_dau_dua_luoi, "drink"));
-            foodList.add(new Food(35, "Trà Sữa Matcha Trân Châu Sasin.", "Trà sữa matcha.", 35000, R.drawable.soda_dua_dua_dac_thom, "drink"));
+            foodList.add(new Food(35, "Trà Sữa Matcha Trân Châu Sasin.", "Trà sữa matcha.", 35000, R.drawable.matcha_tran_chau_sasin, "drink"));
             foodList.add(new Food(36, "Sprite", "Sprite.", 23000, R.drawable.sprite, "drink"));
             foodList.add(new Food(37, "Coca Cola", "Coca Cola.", 23000, R.drawable.coca, "drink"));
             foodList.add(new Food(31, "Sting", "Sting lon.", 29000, R.drawable.sting, "drink"));
