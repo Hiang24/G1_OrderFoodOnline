@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -17,9 +18,13 @@ import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.AddressAdapter;
 import com.example.g1_orderfoodonline.fragments.AddAddressFragment;
 import com.example.g1_orderfoodonline.models.DeliveryAddress;
-import com.example.g1_orderfoodonline.utils.AddressManager;
+import com.example.g1_orderfoodonline.utils.AddressDatabaseHelper;
 import com.example.g1_orderfoodonline.utils.LogUtils;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AddressListActivity extends AppCompatActivity implements AddressAdapter.AddressListener {
@@ -35,6 +40,7 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
     private AddressAdapter adapter;
     private List<DeliveryAddress> addresses;
     private boolean isSelectionMode;
+    private AddressDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +48,7 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
         setContentView(R.layout.activity_address_list);
 
         isSelectionMode = getIntent().getBooleanExtra(ARG_SELECTION_MODE, false);
+        dbHelper = new AddressDatabaseHelper();
 
         initViews();
         setupToolbar();
@@ -76,29 +83,36 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
     }
 
     private void loadAddresses() {
-        try {
-            addresses = AddressManager.getInstance().getAddresses();
-
-            if (addresses.isEmpty()) {
+        dbHelper.getAddresses(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                addresses = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    DeliveryAddress address = child.getValue(DeliveryAddress.class);
+                    if (address != null) addresses.add(address);
+                }
+                if (addresses.isEmpty()) {
+                    textViewNoAddresses.setVisibility(View.VISIBLE);
+                    recyclerViewAddresses.setVisibility(View.GONE);
+                } else {
+                    textViewNoAddresses.setVisibility(View.GONE);
+                    recyclerViewAddresses.setVisibility(View.VISIBLE);
+                    adapter = new AddressAdapter(AddressListActivity.this, addresses, AddressListActivity.this, isSelectionMode);
+                    recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(AddressListActivity.this));
+                    recyclerViewAddresses.setAdapter(adapter);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
                 textViewNoAddresses.setVisibility(View.VISIBLE);
                 recyclerViewAddresses.setVisibility(View.GONE);
-            } else {
-                textViewNoAddresses.setVisibility(View.GONE);
-                recyclerViewAddresses.setVisibility(View.VISIBLE);
-
-                adapter = new AddressAdapter(this, addresses, this, isSelectionMode);
-                recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
-                recyclerViewAddresses.setAdapter(adapter);
             }
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error loading addresses", e);
-        }
+        });
     }
 
     private void showAddAddressFragment() {
-        AddAddressFragment fragment = AddAddressFragment.newInstance(-1);
+        AddAddressFragment fragment = AddAddressFragment.newInstance(null);
         fragment.setTargetFragment(null, 0);
-        
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
@@ -130,14 +144,12 @@ public class AddressListActivity extends AppCompatActivity implements AddressAda
 
     @Override
     public void onDeleteAddress(DeliveryAddress address) {
-        AddressManager.getInstance().deleteAddress(address.getId());
-        loadAddresses();
+        dbHelper.deleteAddress(address.getId(), (error, ref) -> loadAddresses());
     }
 
     @Override
     public void onSetDefaultAddress(DeliveryAddress address) {
-        AddressManager.getInstance().setDefaultAddress(address.getId());
-        loadAddresses();
+        dbHelper.setDefaultAddress(address.getId(), (error, ref) -> loadAddresses());
     }
 
     @Override

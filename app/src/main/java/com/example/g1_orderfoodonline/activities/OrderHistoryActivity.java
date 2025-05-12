@@ -16,12 +16,16 @@ import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.OrderHistoryAdapter;
 import com.example.g1_orderfoodonline.models.Order;
 import com.example.g1_orderfoodonline.utils.LogUtils;
-import com.example.g1_orderfoodonline.utils.OrderManager;
+import com.example.g1_orderfoodonline.utils.OrderDatabaseHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class OrderHistoryActivity extends AppCompatActivity implements OrderHistoryAdapter.OrderClickListener {
+public class OrderHistoryActivity extends AppCompatActivity implements OrderHistoryAdapter.OnOrderClickListener {
 
     private static final String TAG = "OrderHistoryActivity";
 
@@ -31,7 +35,7 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
     private BottomNavigationView bottomNavigationView;
 
     private OrderHistoryAdapter adapter;
-    private List<Order> orders;
+    private OrderDatabaseHelper orderDatabaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,7 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
             initViews();
             setupToolbar();
             setupBottomNavigation();
+            setupRecyclerView();
             loadOrders();
         } catch (Exception e) {
             LogUtils.error(TAG, "Error in onCreate", e);
@@ -54,6 +59,8 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
             textViewNoOrders = findViewById(R.id.textViewNoOrders);
             toolbar = findViewById(R.id.toolbar);
             bottomNavigationView = findViewById(R.id.bottom_navigation);
+            bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
+            orderDatabaseHelper = OrderDatabaseHelper.getInstance();
         } catch (Exception e) {
             LogUtils.error(TAG, "Error initializing views", e);
         }
@@ -108,35 +115,40 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
         }
     }
 
-    private void navigateToProfileFragment() {
-        try {
-            // Quay về MainActivity và hiển thị ProfileFragment
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("fragment", "profile");
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error navigating to profile fragment", e);
-            onBackPressed();
-        }
+    private void setupRecyclerView() {
+        adapter = new OrderHistoryAdapter(this);
+        recyclerViewOrders.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewOrders.setAdapter(adapter);
     }
 
     private void loadOrders() {
         try {
-            orders = OrderManager.getInstance().getAllOrders();
+            orderDatabaseHelper.getOrders(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    List<Order> orders = new ArrayList<>();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        Order order = snapshot.getValue(Order.class);
+                        if (order != null) {
+                            orders.add(order);
+                        }
+                    }
 
-            if (orders.isEmpty()) {
-                textViewNoOrders.setVisibility(View.VISIBLE);
-                recyclerViewOrders.setVisibility(View.GONE);
-            } else {
-                textViewNoOrders.setVisibility(View.GONE);
-                recyclerViewOrders.setVisibility(View.VISIBLE);
+                    if (orders.isEmpty()) {
+                        textViewNoOrders.setVisibility(View.VISIBLE);
+                        recyclerViewOrders.setVisibility(View.GONE);
+                    } else {
+                        textViewNoOrders.setVisibility(View.GONE);
+                        recyclerViewOrders.setVisibility(View.VISIBLE);
+                        adapter.setOrders(orders);
+                    }
+                }
 
-                adapter = new OrderHistoryAdapter(this, orders, this);
-                recyclerViewOrders.setLayoutManager(new LinearLayoutManager(this));
-                recyclerViewOrders.setAdapter(adapter);
-            }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    LogUtils.error(TAG, "Error loading orders", databaseError.toException());
+                }
+            });
         } catch (Exception e) {
             LogUtils.error(TAG, "Error loading orders", e);
         }
@@ -166,5 +178,19 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
     @Override
     public void onBackPressed() {
         navigateToProfileFragment();
+    }
+
+    private void navigateToProfileFragment() {
+        try {
+            // Quay về MainActivity và hiển thị ProfileFragment
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("fragment", "profile");
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        } catch (Exception e) {
+            LogUtils.error(TAG, "Error navigating to profile fragment", e);
+            onBackPressed();
+        }
     }
 }

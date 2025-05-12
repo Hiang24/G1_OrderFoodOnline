@@ -181,15 +181,22 @@ public class HomeFragment extends Fragment implements FoodAdapter.OnFoodClickLis
         List<Food> foodList = new ArrayList<>();
 
         try {
-            // Sử dụng R.drawable trực tiếp
-            foodList.add(new Food(1, "Mỳ Cay Thập Cẩm", "Mỳ cay thập cẩm với nhiều loại hải sản tươi ngon, cay nồng đậm đà hương vị Hàn Quốc.", 75000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(2, "Cơm Trộn Hàn Quốc", "Cơm trộn Hàn Quốc với rau củ tươi ngon, thịt bò xào và trứng ốp la.", 65000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(3, "Trà Đào Cam Sả", "Trà đào thơm ngon với vị cam sả thanh mát.", 35000, R.drawable.mi_kim_chi_hai_san, "drink"));
-            foodList.add(new Food(4, "Gà Rán Sốt Cay", "Gà rán giòn rụm với sốt cay đặc biệt.", 85000, R.drawable.mi_kim_chi_hai_san, "food"));
+            foodList.add(new Food(1, "Mì Cay Thập Cẩm", "Mì Chinnoo, bò Mỹ, tôm, mực, chả cá Hàn Quốc, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 69000, R.drawable.mi_kim_chi_thap_cam, "food"));
+            foodList.add(new Food(2, "Mì Kim Chi Đùi Gà", "Mì Chinnoo, đùi gà, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 55000, R.drawable.mi_kim_chi_dui_ga, "food"));
+            foodList.add(new Food(3, "Mì Kim Chi Hải Sản", "Mì Chinnoo, tôm, mực, chả cá Hàn Quốc, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 62000, R.drawable.mi_kim_chi_hai_san, "food"));
+            foodList.add(new Food(4, "Mì Kim Chi Cá", "Mì Chinnoo, cá, tôm, mực, chả cá Hàn Quốc, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 49000, R.drawable.mi_kim_chi_ca, "food"));
+            foodList.add(new Food(5, "Mì Soyum Hải Sản", "Mì Chinnoo, tôm, mực, chả cá Hàn Quốc, cá viên, kim chi, cài thìa, nấm, bắp cải tím.", 62000, R.drawable.mi_soyum_hai_san, "food"));
+            foodList.add(new Food(6, "Mì Soyum Đùi Gà", "Mì Chinnoo, đùi gà, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 59000, R.drawable.mi_kim_chi_hai_san, "food"));
+            foodList.add(new Food(7, "Mì Soyum Thập Cẩm", "Mì Chinnoo, bò Mỹ, tôm, mực, chả cá Hàn Quốc, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 69000, R.drawable.mi_soyum_thap_cam, "food"));
+            foodList.add(new Food(8, "Mì Soyum Bò Mỹ", "Mì Chinnoo, bò Mỹ, xúc xích, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 59000, R.drawable.mi_soyum_bo_my, "food"));
 
-            // Thêm món ăn phổ biến mới ở đây
-            foodList.add(new Food(11, "Bún Chả Hà Nội", "Bún chả Hà Nội với thịt nướng thơm lừng, nước mắm chua ngọt đặc trưng.", 50000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(14, "Trà Sữa Trân Châu", "Trà sữa thơm ngon với trân châu đen dẻo.", 30000, R.drawable.mi_kim_chi_hai_san, "drink"));
+
+            foodList.add(new Food(28, "Soda Dâu Dưa Lưới", "Dâu tây soda.", 35000, R.drawable.soda_dau_dua_luoi, "drink"));
+            foodList.add(new Food(29, "Soda Dừa Dứa Đác Thơm", "Dứa nước soda và hạt cọ kẹo,", 35000, R.drawable.soda_dua_dua_dac_thom, "drink"));
+            foodList.add(new Food(30, "Soda Thơm Lừng", "Dưa dứa soda.", 35000, R.drawable.soda_thom_lung, "drink"));
+            foodList.add(new Food(32, "Trà Dâu Hoa Hồng", "Trà đen Hibiscus.", 35000, R.drawable.nuoc_gao_han_quoc, "drink"));
+            foodList.add(new Food(26, "Nước Gạo Hàn Quốc", "Đồ uống gạo ngọt.", 35000, R.drawable.nuoc_gao_han_quoc, "drink"));
+            foodList.add(new Food(27, "Nước Gạo Hoa Anh Đào", "Đồ uống gạo nếp sakura.", 35000, R.drawable.nuoc_gao_hoa_anh_dao, "drink"));
         } catch (Exception e) {
             LogUtils.error(TAG, "Error getting popular foods", e);
         }
@@ -201,19 +208,22 @@ public class HomeFragment extends Fragment implements FoodAdapter.OnFoodClickLis
         List<Food> foodList = new ArrayList<>();
 
         try {
-            // Sử dụng R.drawable trực tiếp
-            foodList.add(new Food(5, "Bánh Mì Thịt Nướng", "Bánh mì giòn với thịt nướng thơm ngon và rau sống.", 30000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(6, "Cà Phê Sữa Đá", "Cà phê đậm đà hòa quyện với sữa đặc.", 25000, R.drawable.mi_kim_chi_hai_san, "drink"));
-            foodList.add(new Food(7, "Bún Bò Huế", "Bún bò Huế cay nồng với nhiều loại gia vị đặc trưng.", 55000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(8, "Sinh Tố Xoài", "Sinh tố xoài ngọt mát với vị chua nhẹ.", 30000, R.drawable.mi_kim_chi_hai_san, "drink"));
-            foodList.add(new Food(9, "Phở Bò", "Phở bò thơm ngon với nước dùng đậm đà và thịt bò mềm.", 60000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(10, "Nước Ép Cam", "Nước ép cam tươi nguyên chất, giàu vitamin C.", 25000, R.drawable.mi_kim_chi_hai_san, "drink"));
-
-            // Thêm món ăn được đề xuất mới ở đây
-            foodList.add(new Food(12, "Cơm Tấm Sườn Bì", "Cơm tấm với sườn nướng, bì heo và trứng ốp la, kèm nước mắm đặc biệt.", 45000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(13, "Bánh Xèo", "Bánh xèo giòn rụm với nhân tôm, thịt và giá đỗ, ăn kèm rau sống.", 40000, R.drawable.mi_kim_chi_hai_san, "food"));
-            foodList.add(new Food(15, "Nước Ép Dưa Hấu", "Nước ép dưa hấu tươi mát, giải nhiệt mùa hè.", 28000, R.drawable.mi_kim_chi_hai_san, "drink"));
-            foodList.add(new Food(16, "Sữa Chua Đá", "Sữa chua đá thơm ngon với topping trái cây tươi.", 32000, R.drawable.mi_kim_chi_hai_san, "drink"));
+            // Đồ ăn
+            foodList.add(new Food(9, "Mì Sincay Hải Sản", "Mì Chinnoo, tôm, mực, chả cá Hàn Quốc, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 62000, R.drawable.mi_sincay_hai_san, "food"));
+            foodList.add(new Food(10, "Mì Sincay Bò Mỹ", "Mì Chinnoo, bò Mỹ, xúc xích, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 59000, R.drawable.mi_sincay_bo_my, "food"));
+            foodList.add(new Food(11, "Mì Sincay Đùi Gà", "Mì Chinnoo, đùi gà, cá viên, kim chi, cải thìa, nấm, bắp cải tím.", 59000, R.drawable.mi_sincay_dui_ga, "food"));
+            foodList.add(new Food(12, "Mì Trộn Tương Đen Bò Mỹ", "Mì Chinnoo, bò, cá viên, hành tây, ớt chuông, cà rốt, hành baro.", 65000, R.drawable.mi_tron_tuong_den_bo_my, "food"));
+            foodList.add(new Food(13, "Mì Trộn Tương Đen Heo Cuộn", "Mì Chinnoo, heo cuộn, cá viên, hành tây, ớt chuông, cà rốt, hành baro.", 65000, R.drawable.mi_tron_tuong_den_heo_cuon, "food"));
+            foodList.add(new Food(14, "Mì Trộn Tương Đen Gà", "Mì Chinnoo, gà, cá viên, hành tây, ớt chuông, cà rốt, hành baro.", 59000, R.drawable.mi_tron_tuong_den_ga, "food"));
+            foodList.add(new Food(15, "Mì Trộn Tương Mandu", "Mì Chinnoo, mandu, cá viên, hành tây, ớt chuông, cà rốt, hành baro.", 55000, R.drawable.mi_tron_tuong_den_mandu, "food"));
+            // Đồ uống
+            foodList.add(new Food(32, "Trà Dâu Hoa Hồng", "Trà đen Hibiscus.", 35000, R.drawable.nuoc_gao_han_quoc, "drink"));
+            foodList.add(new Food(33, "Trà Đào Sasin", "Trà đào.", 35000, R.drawable.nuoc_gao_hoa_anh_dao, "drink"));
+            foodList.add(new Food(34, "Trà Sữa Trân Châu Sasin", "Trà sữa.", 35000, R.drawable.soda_dau_dua_luoi, "drink"));
+            foodList.add(new Food(35, "Trà Sữa Matcha Trân Châu Sasin.", "Trà sữa matcha.", 35000, R.drawable.soda_dua_dua_dac_thom, "drink"));
+            foodList.add(new Food(36, "Sprite", "Sprite.", 23000, R.drawable.sprite, "drink"));
+            foodList.add(new Food(37, "Coca Cola", "Coca Cola.", 23000, R.drawable.coca, "drink"));
+            foodList.add(new Food(31, "Sting", "Sting lon.", 29000, R.drawable.sting, "drink"));
         } catch (Exception e) {
             LogUtils.error(TAG, "Error getting recommended foods", e);
         }

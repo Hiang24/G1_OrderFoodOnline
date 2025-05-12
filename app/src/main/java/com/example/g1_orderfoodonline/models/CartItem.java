@@ -6,6 +6,10 @@ public class CartItem implements Serializable {
     private Food food;
     private int quantity;
 
+    // Constructor mặc định cho Firebase
+    public CartItem() {
+    }
+
     public CartItem(Food food, int quantity) {
         this.food = food;
         this.quantity = quantity;

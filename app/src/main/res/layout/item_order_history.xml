@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/textViewOrderId"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
@@ -25,7 +25,7 @@
 
         <TextView
             android:id="@+id/textViewOrderDate"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/text_secondary"
@@ -33,37 +33,14 @@
             tools:text="Ngày đặt: 15/05/2023 - 10:30" />
 
         <TextView
-            android:id="@+id/textViewOrderStatus"
-            android:layout_width="match_parent"
+            android:id="@+id/textViewOrderTotal"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            tools:text="Trạng thái: Đã giao hàng" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Tổng cộng:"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textViewOrderTotal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary"
-                android:textStyle="bold"
-                tools:text="165.000đ" />
-
-        </LinearLayout>
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="165.000đ" />
 
     </LinearLayout>
 

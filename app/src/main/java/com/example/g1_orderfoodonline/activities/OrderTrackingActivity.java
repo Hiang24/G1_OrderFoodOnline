@@ -3,7 +3,6 @@ package com.example.g1_orderfoodonline.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,21 +15,21 @@ import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.OrderSummaryAdapter;
 import com.example.g1_orderfoodonline.models.Order;
 import com.example.g1_orderfoodonline.utils.LogUtils;
-import com.example.g1_orderfoodonline.utils.OrderManager;
+import com.example.g1_orderfoodonline.utils.OrderDatabaseHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 public class OrderTrackingActivity extends AppCompatActivity {
 
     private static final String TAG = "OrderTrackingActivity";
-    private static final int STATUS_UPDATE_DELAY = 30000; // 30 giây
 
     private RecyclerView recyclerViewOrderItems;
     private Toolbar toolbar;
     private TextView textViewOrderId, textViewOrderDate;
     private TextView textViewDeliveryName, textViewDeliveryPhone, textViewDeliveryAddress;
     private TextView textViewSubtotal, textViewDeliveryFee, textViewTotal;
-    private TextView textViewConfirmedTime, textViewProcessingTime, textViewOnTheWayTime, textViewDeliveredTime;
-    private ImageView imageViewConfirmed, imageViewProcessing, imageViewOnTheWay, imageViewDelivered;
 
     private BottomNavigationView bottomNavigationView;
 
@@ -62,24 +61,32 @@ public class OrderTrackingActivity extends AppCompatActivity {
 
             LogUtils.debug(TAG, "Order ID: " + orderId + ", Source: " + sourceActivity);
 
-            // Lấy thông tin đơn hàng
-            order = OrderManager.getInstance().getOrder(orderId);
-            if (order == null) {
-                LogUtils.error(TAG, "Order not found for ID: " + orderId);
-                Toast.makeText(this, "Không tìm thấy thông tin đơn hàng", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
-
             initViews();
             setupToolbar();
             setupBottomNavigation();
-            displayOrderInfo();
-            setupRecyclerView();
-            updateOrderStatus();
 
-            // Mô phỏng cập nhật trạng thái đơn hàng (trong thực tế sẽ được cập nhật từ server)
-            simulateOrderProgress();
+            // Lấy thông tin đơn hàng từ Firebase
+            OrderDatabaseHelper.getInstance().getOrder(orderId, new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    order = snapshot.getValue(Order.class);
+                    if (order == null) {
+                        LogUtils.error(TAG, "Order not found for ID: " + orderId);
+                        Toast.makeText(OrderTrackingActivity.this, "Không tìm thấy thông tin đơn hàng", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+                    displayOrderInfo();
+                    setupRecyclerView();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    LogUtils.error(TAG, "Error loading order from Firebase", error.toException());
+                    Toast.makeText(OrderTrackingActivity.this, "Lỗi khi tải đơn hàng", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            });
 
         } catch (Exception e) {
             LogUtils.error(TAG, "Error in onCreate", e);
@@ -94,6 +101,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
             toolbar = findViewById(R.id.toolbar);
 
             bottomNavigationView = findViewById(R.id.bottom_navigation);
+            bottomNavigationView.setSelectedItemId(R.id.navigation_menu);
 
             textViewOrderId = findViewById(R.id.textViewOrderId);
             textViewOrderDate = findViewById(R.id.textViewOrderDate);
@@ -105,16 +113,6 @@ public class OrderTrackingActivity extends AppCompatActivity {
             textViewSubtotal = findViewById(R.id.textViewSubtotal);
             textViewDeliveryFee = findViewById(R.id.textViewDeliveryFee);
             textViewTotal = findViewById(R.id.textViewTotal);
-
-            textViewConfirmedTime = findViewById(R.id.textViewConfirmedTime);
-            textViewProcessingTime = findViewById(R.id.textViewProcessingTime);
-            textViewOnTheWayTime = findViewById(R.id.textViewOnTheWayTime);
-            textViewDeliveredTime = findViewById(R.id.textViewDeliveredTime);
-
-            imageViewConfirmed = findViewById(R.id.imageViewConfirmed);
-            imageViewProcessing = findViewById(R.id.imageViewProcessing);
-            imageViewOnTheWay = findViewById(R.id.imageViewOnTheWay);
-            imageViewDelivered = findViewById(R.id.imageViewDelivered);
         } catch (Exception e) {
             LogUtils.error(TAG, "Error initializing views", e);
             throw e;
@@ -128,7 +126,6 @@ public class OrderTrackingActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
-
         } catch (Exception e) {
             LogUtils.error(TAG, "Error setting up toolbar", e);
         }
@@ -170,7 +167,6 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }
     }
 
-    // Phương thức mới để quay lại màn hình trước đó
     private void navigateBack() {
         try {
             if ("CheckoutActivity".equals(sourceActivity)) {
@@ -229,102 +225,6 @@ public class OrderTrackingActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             LogUtils.error(TAG, "Error setting up recycler view", e);
-        }
-    }
-
-    private void updateOrderStatus() {
-        try {
-            // Hiển thị thời gian cho từng trạng thái
-            textViewConfirmedTime.setText(order.getConfirmedTime() != null ? order.getConfirmedTime() : "--:--");
-            textViewProcessingTime.setText(order.getProcessingTime() != null ? order.getProcessingTime() : "--:--");
-            textViewOnTheWayTime.setText(order.getOnTheWayTime() != null ? order.getOnTheWayTime() : "--:--");
-            textViewDeliveredTime.setText(order.getDeliveredTime() != null ? order.getDeliveredTime() : "--:--");
-
-            // Cập nhật trạng thái hiển thị
-            String status = order.getStatus();
-
-            // Mặc định tất cả đều là chưa hoàn thành
-            imageViewConfirmed.setImageResource(R.drawable.ic_circle);
-            imageViewProcessing.setImageResource(R.drawable.ic_circle);
-            imageViewOnTheWay.setImageResource(R.drawable.ic_circle);
-            imageViewDelivered.setImageResource(R.drawable.ic_circle);
-
-            // Cập nhật theo trạng thái hiện tại
-            if (status.equals("Đã xác nhận") || status.equals("Đang chuẩn bị") ||
-                    status.equals("Đang giao hàng") || status.equals("Đã giao hàng")) {
-                imageViewConfirmed.setImageResource(R.drawable.ic_check_circle);
-                imageViewConfirmed.setColorFilter(getResources().getColor(R.color.green));
-            }
-
-            if (status.equals("Đang chuẩn bị") || status.equals("Đang giao hàng") ||
-                    status.equals("Đã giao hàng")) {
-                imageViewProcessing.setImageResource(R.drawable.ic_check_circle);
-                imageViewProcessing.setColorFilter(getResources().getColor(R.color.green));
-            }
-
-            if (status.equals("Đang giao hàng") || status.equals("Đã giao hàng")) {
-                imageViewOnTheWay.setImageResource(R.drawable.ic_check_circle);
-                imageViewOnTheWay.setColorFilter(getResources().getColor(R.color.green));
-            }
-
-            if (status.equals("Đã giao hàng")) {
-                imageViewDelivered.setImageResource(R.drawable.ic_check_circle);
-                imageViewDelivered.setColorFilter(getResources().getColor(R.color.green));
-            }
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error updating order status", e);
-        }
-    }
-
-    private void simulateOrderProgress() {
-        try {
-            // Mô phỏng cập nhật trạng thái đơn hàng
-            // Trong thực tế, trạng thái sẽ được cập nhật từ server
-
-            // Sau 30 giây, cập nhật trạng thái "Đang chuẩn bị"
-            new android.os.Handler().postDelayed(() -> {
-                try {
-                    OrderManager.getInstance().updateOrderStatus(order.getId(), "Đang chuẩn bị");
-
-                    order = OrderManager.getInstance().getOrder(order.getId());
-                    if (order != null) {
-                        updateOrderStatus();
-                        Toast.makeText(OrderTrackingActivity.this, "Đơn hàng đang được chuẩn bị", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    LogUtils.error(TAG, "Error updating to processing status", e);
-                }
-            }, STATUS_UPDATE_DELAY);
-
-            // Sau 60 giây, cập nhật trạng thái "Đang giao hàng"
-            new android.os.Handler().postDelayed(() -> {
-                try {
-                    OrderManager.getInstance().updateOrderStatus(order.getId(), "Đang giao hàng");
-                    order = OrderManager.getInstance().getOrder(order.getId());
-                    if (order != null) {
-                        updateOrderStatus();
-                        Toast.makeText(OrderTrackingActivity.this, "Đơn hàng đang được giao", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    LogUtils.error(TAG, "Error updating to on the way status", e);
-                }
-            }, STATUS_UPDATE_DELAY * 2);
-
-            // Sau 90 giây, cập nhật trạng thái "Đã giao hàng"
-            new android.os.Handler().postDelayed(() -> {
-                try {
-                    OrderManager.getInstance().updateOrderStatus(order.getId(), "Đã giao hàng");
-                    order = OrderManager.getInstance().getOrder(order.getId());
-                    if (order != null) {
-                        updateOrderStatus();
-                        Toast.makeText(OrderTrackingActivity.this, "Đơn hàng đã được giao thành công", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    LogUtils.error(TAG, "Error updating to delivered status", e);
-                }
-            }, STATUS_UPDATE_DELAY * 3);
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error simulating order progress", e);
         }
     }
 

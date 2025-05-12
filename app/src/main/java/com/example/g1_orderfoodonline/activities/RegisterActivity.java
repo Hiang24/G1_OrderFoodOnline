@@ -72,10 +72,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 user.put("phone", input);
 
                                 // Chuyển về màn hình đăng nhập ngay lập tức
-                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                finish();
+                startActivity(intent);
+                finish();
 
                                 // Lưu thông tin vào Firestore sau khi đã chuyển màn hình
                                 db.collection("users").document(userId)

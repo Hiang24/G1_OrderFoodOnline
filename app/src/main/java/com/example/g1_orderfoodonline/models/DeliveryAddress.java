@@ -3,15 +3,18 @@ package com.example.g1_orderfoodonline.models;
 import java.io.Serializable;
 
 public class DeliveryAddress implements Serializable {
-    private int id;
+    private String id;
     private String name;
     private String phone;
     private String address;
     private String district;
     private String city;
     private boolean isDefault;
+    private long createdAt;
 
-    public DeliveryAddress(int id, String name, String phone, String address, String district, String city, boolean isDefault) {
+    public DeliveryAddress() {}
+
+    public DeliveryAddress(String id, String name, String phone, String address, String district, String city, boolean isDefault, long createdAt) {
         this.id = id;
         this.name = name;
         this.phone = phone;
@@ -19,13 +22,14 @@ public class DeliveryAddress implements Serializable {
         this.district = district;
         this.city = city;
         this.isDefault = isDefault;
+        this.createdAt = createdAt;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -75,6 +79,14 @@ public class DeliveryAddress implements Serializable {
 
     public void setDefault(boolean isDefault) {
         this.isDefault = isDefault;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getFullAddress() {

@@ -11,22 +11,21 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.OrderSummaryAdapter;
-import com.example.g1_orderfoodonline.fragments.AddressListFragment;
 import com.example.g1_orderfoodonline.models.CartItem;
 import com.example.g1_orderfoodonline.models.DeliveryAddress;
 import com.example.g1_orderfoodonline.models.Order;
-import com.example.g1_orderfoodonline.utils.AddressManager;
+import com.example.g1_orderfoodonline.utils.AddressDatabaseHelper;
 import com.example.g1_orderfoodonline.utils.CartManager;
 import com.example.g1_orderfoodonline.utils.LogUtils;
-import com.example.g1_orderfoodonline.utils.OrderManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class CheckoutActivity extends AppCompatActivity {
@@ -55,11 +55,13 @@ public class CheckoutActivity extends AppCompatActivity {
     private List<CartItem> cartItems;
     private double subtotal, total;
     private DeliveryAddress selectedAddress;
+    private AddressDatabaseHelper addressDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
+        addressDbHelper = new AddressDatabaseHelper();
 
         initViews();
         setupToolbar();
@@ -88,6 +90,7 @@ public class CheckoutActivity extends AppCompatActivity {
             recyclerViewOrderSummary = findViewById(R.id.recyclerViewOrderSummary);
             toolbar = findViewById(R.id.toolbar);
             bottomNavigationView = findViewById(R.id.bottom_navigation);
+            bottomNavigationView.setSelectedItemId(R.id.navigation_menu);
 
             textViewChangeAddress.setOnClickListener(v -> {
                 navigateToAddressList();
@@ -201,12 +204,29 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void loadDefaultAddress() {
-        try {
-            selectedAddress = AddressManager.getInstance().getDefaultAddress();
-            updateAddressUI();
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error loading default address", e);
-        }
+        addressDbHelper.getDefaultAddress(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && snapshot.getChildrenCount() > 0) {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        selectedAddress = child.getValue(DeliveryAddress.class);
+                        if (selectedAddress != null) {
+                            updateAddressUI();
+                            return;
+                        }
+                    }
+                }
+                // Nếu không có địa chỉ mặc định
+                selectedAddress = null;
+                updateAddressUI();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                LogUtils.error(TAG, "Error loading default address", error.toException());
+                selectedAddress = null;
+                updateAddressUI();
+            }
+        });
     }
 
     private void updateAddressUI() {
@@ -215,11 +235,13 @@ public class CheckoutActivity extends AppCompatActivity {
             textViewPhone.setText(selectedAddress.getPhone());
             textViewAddress.setText(selectedAddress.getFullAddress());
             textViewChangeAddress.setVisibility(View.VISIBLE);
+            cardViewAddress.setClickable(true);
         } else {
             textViewName.setText("Chưa có địa chỉ giao hàng");
             textViewPhone.setText("");
             textViewAddress.setText("Nhấn vào đây để thêm địa chỉ giao hàng");
             textViewChangeAddress.setVisibility(View.GONE);
+            cardViewAddress.setClickable(true);
         }
     }
 
@@ -282,27 +304,19 @@ public class CheckoutActivity extends AppCompatActivity {
                     orderItems,
                     subtotal,
                     DELIVERY_FEE,
-                    total,
-                    "Đã xác nhận" // Trạng thái ban đầu
+                    total
             );
 
-            // Lưu đơn hàng
-            OrderManager.getInstance().addOrder(order);
-
-            // Hiển thị thông báo thành công
-            Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_SHORT).show();
-
-            // Chuyển đến màn hình theo dõi đơn hàng
-            Intent intent = new Intent(CheckoutActivity.this, OrderTrackingActivity.class);
-            intent.putExtra("order_id", orderId);
-            intent.putExtra("source", "CheckoutActivity");
-            startActivity(intent);
-
-            // Xóa giỏ hàng
-            CartManager.getInstance().clearCart();
-
-            // Đóng màn hình hiện tại
-            finish();
+            // Lưu đơn hàng lên Firebase
+            com.example.g1_orderfoodonline.utils.OrderDatabaseHelper.getInstance().saveOrder(order, (error, ref) -> {
+                if (error != null) {
+                    Toast.makeText(this, "Lỗi khi lưu đơn hàng lên server!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_SHORT).show();
+                    CartManager.getInstance().clearCart();
+                    finish();
+                }
+            });
         } catch (Exception e) {
             LogUtils.error(TAG, "Error placing order", e);
             Toast.makeText(this, "Lỗi khi đặt hàng: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -327,10 +341,20 @@ public class CheckoutActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_SELECT_ADDRESS && resultCode == RESULT_OK && data != null) {
-            int selectedAddressId = data.getIntExtra("selected_address_id", -1);
-            if (selectedAddressId != -1) {
-                selectedAddress = AddressManager.getInstance().getAddressById(selectedAddressId);
-                updateAddressUI();
+            String selectedAddressId = data.getStringExtra("selected_address_id");
+            if (selectedAddressId != null) {
+                addressDbHelper.getAddressById(selectedAddressId, new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        selectedAddress = snapshot.getValue(DeliveryAddress.class);
+                        updateAddressUI();
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        selectedAddress = null;
+                        updateAddressUI();
+                    }
+                });
             }
         }
     }

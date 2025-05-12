@@ -19,9 +19,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.g1_orderfoodonline.R;
 import com.example.g1_orderfoodonline.adapters.AddressAdapter;
 import com.example.g1_orderfoodonline.models.DeliveryAddress;
-import com.example.g1_orderfoodonline.utils.AddressManager;
+import com.example.g1_orderfoodonline.utils.AddressDatabaseHelper;
 import com.example.g1_orderfoodonline.utils.LogUtils;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AddressListFragment extends Fragment implements AddressAdapter.AddressListener {
@@ -35,8 +39,9 @@ public class AddressListFragment extends Fragment implements AddressAdapter.Addr
     private TextView textViewTitle;
 
     private AddressAdapter adapter;
-    private List<DeliveryAddress> addresses;
+    private List<DeliveryAddress> addresses = new ArrayList<>();
     private boolean isSelectionMode;
+    private AddressDatabaseHelper dbHelper;
 
     public static AddressListFragment newInstance(boolean selectionMode) {
         AddressListFragment fragment = new AddressListFragment();
@@ -50,14 +55,12 @@ public class AddressListFragment extends Fragment implements AddressAdapter.Addr
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_address_list, container, false);
-
+        dbHelper = new AddressDatabaseHelper();
         if (getArguments() != null) {
             isSelectionMode = getArguments().getBoolean(ARG_SELECTION_MODE, false);
         }
-
         initViews(view);
         loadAddresses();
-
         return view;
     }
 
@@ -67,51 +70,57 @@ public class AddressListFragment extends Fragment implements AddressAdapter.Addr
             textViewNoAddresses = view.findViewById(R.id.textViewNoAddresses);
             buttonAddAddress = view.findViewById(R.id.buttonAddAddress);
             textViewTitle = view.findViewById(R.id.textViewTitle);
-
             textViewTitle.setText(isSelectionMode ? "Chọn địa chỉ giao hàng" : "Địa chỉ giao hàng");
-
-            buttonAddAddress.setOnClickListener(v -> {
-                showAddAddressFragment();
-            });
+            buttonAddAddress.setOnClickListener(v -> showAddAddressFragment());
+            recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(getContext()));
+            adapter = new AddressAdapter(requireContext(), addresses, this, isSelectionMode);
+            recyclerViewAddresses.setAdapter(adapter);
         } catch (Exception e) {
             LogUtils.error(TAG, "Error initializing views", e);
         }
     }
 
     private void loadAddresses() {
-        try {
-            addresses = AddressManager.getInstance().getAddresses();
+        dbHelper.getAddresses(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                addresses.clear();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    DeliveryAddress address = child.getValue(DeliveryAddress.class);
+                    if (address != null) addresses.add(address);
+                }
+                updateUI();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Lỗi khi tải địa chỉ", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
+    private void updateUI() {
             if (addresses.isEmpty()) {
                 textViewNoAddresses.setVisibility(View.VISIBLE);
                 recyclerViewAddresses.setVisibility(View.GONE);
             } else {
                 textViewNoAddresses.setVisibility(View.GONE);
                 recyclerViewAddresses.setVisibility(View.VISIBLE);
-
-                adapter = new AddressAdapter(requireContext(), addresses, this, isSelectionMode);
-                recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerViewAddresses.setAdapter(adapter);
-            }
-        } catch (Exception e) {
-            LogUtils.error(TAG, "Error loading addresses", e);
+            adapter.notifyDataSetChanged();
         }
     }
 
     private void showAddAddressFragment() {
-        AddAddressFragment fragment = AddAddressFragment.newInstance(-1);
+        AddAddressFragment fragment = AddAddressFragment.newInstance(null);
         fragment.setTargetFragment(this, 0);
-        
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
 
-    private void showEditAddressFragment(int addressId) {
+    private void showEditAddressFragment(String addressId) {
         AddAddressFragment fragment = AddAddressFragment.newInstance(addressId);
         fragment.setTargetFragment(this, 0);
-        
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
         transaction.addToBackStack(null);
@@ -137,8 +146,7 @@ public class AddressListFragment extends Fragment implements AddressAdapter.Addr
                 .setTitle("Xóa địa chỉ")
                 .setMessage("Bạn có chắc chắn muốn xóa địa chỉ này?")
                 .setPositiveButton("Xóa", (dialog, which) -> {
-                    AddressManager.getInstance().deleteAddress(address.getId());
-                    loadAddresses();
+                    dbHelper.deleteAddress(address.getId(), (error, ref) -> loadAddresses());
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
@@ -146,7 +154,6 @@ public class AddressListFragment extends Fragment implements AddressAdapter.Addr
 
     @Override
     public void onSetDefaultAddress(DeliveryAddress address) {
-        AddressManager.getInstance().setDefaultAddress(address.getId());
-        loadAddresses();
+        dbHelper.setDefaultAddress(address.getId(), (error, ref) -> loadAddresses());
     }
 } 

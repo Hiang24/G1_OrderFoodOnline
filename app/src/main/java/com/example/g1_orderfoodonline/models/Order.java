@@ -2,6 +2,7 @@ package com.example.g1_orderfoodonline.models;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Order implements Serializable {
     private String id;
@@ -13,17 +14,16 @@ public class Order implements Serializable {
     private double subtotal;
     private double deliveryFee;
     private double total;
-    private String status;
-    
-    // Thời gian cho từng trạng thái
-    private String confirmedTime;
-    private String processingTime;
-    private String onTheWayTime;
-    private String deliveredTime;
+
+    // Constructor không tham số cho Firebase
+    public Order() {
+        // Khởi tạo các giá trị mặc định
+        this.items = new ArrayList<>();
+    }
 
     public Order(String id, String customerName, String customerPhone, String customerAddress, 
                  String orderDate, List<CartItem> items, double subtotal, double deliveryFee, 
-                 double total, String status) {
+                 double total) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhone = customerPhone;
@@ -33,10 +33,6 @@ public class Order implements Serializable {
         this.subtotal = subtotal;
         this.deliveryFee = deliveryFee;
         this.total = total;
-        this.status = status;
-        
-        // Khởi tạo thời gian xác nhận đơn hàng
-        this.confirmedTime = orderDate;
     }
 
     public String getId() {
@@ -109,46 +105,6 @@ public class Order implements Serializable {
 
     public void setTotal(double total) {
         this.total = total;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getConfirmedTime() {
-        return confirmedTime;
-    }
-
-    public void setConfirmedTime(String confirmedTime) {
-        this.confirmedTime = confirmedTime;
-    }
-
-    public String getProcessingTime() {
-        return processingTime;
-    }
-
-    public void setProcessingTime(String processingTime) {
-        this.processingTime = processingTime;
-    }
-
-    public String getOnTheWayTime() {
-        return onTheWayTime;
-    }
-
-    public void setOnTheWayTime(String onTheWayTime) {
-        this.onTheWayTime = onTheWayTime;
-    }
-
-    public String getDeliveredTime() {
-        return deliveredTime;
-    }
-
-    public void setDeliveredTime(String deliveredTime) {
-        this.deliveredTime = deliveredTime;
     }
 }
 

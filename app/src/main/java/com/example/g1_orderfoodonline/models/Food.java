@@ -13,6 +13,10 @@ public class Food implements Serializable, Parcelable {
     private int imageResource; // Thay đổi từ String sang int
     private String category; // "food" or "drink"
 
+    // Constructor mặc định cho Firebase
+    public Food() {
+    }
+
     public Food(int id, String name, String description, double price, int imageResource, String category) {
         this.id = id;
         this.name = name;
